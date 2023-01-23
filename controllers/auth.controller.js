@@ -1,39 +1,35 @@
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcrypt");
-var User = require("../models/user");
+const PrismaClient = require("@prisma/client").PrismaClient;
 
-exports.signup = (req, res) => {
-  const user = new User({
-    username: req.body.fullName,
-    ssn: req.body.ssn,
-    role: req.body.role,
-    password: bcrypt.hashSync(req.body.password, 8),
+const prisma = new PrismaClient();
+
+exports.signup = async (req, res) => {
+  console.log(req.body);
+  const user = await prisma.user.create({
+    data: {
+      ssn: req.body.ssn,
+      username: req.body.username,
+      password: bcrypt.hashSync(req.body.password, 8),
+      role: req.body.role,
+    },
   });
 
-  user.save((err, user) => {
-    if (err) {
-      res.status(500).send({
-        message: err,
-      });
-      return;
-    } else {
-      res.status(200).send({
-        message: "User Registered successfully",
-      });
-    }
+  res.status(200).send({
+    message: "User was registered successfully!",
+    data: user,
   });
 };
 
-exports.signin = (req, res) => {
-  User.findOne({
-    ssn: req.body.ssn,
-  }).exec((err, user) => {
-    if (err) {
-      res.status(500).send({
-        message: err,
-      });
-      return;
-    }
+exports.signin = async (req, res) => {
+  console.log(req.body);
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        ssn: req.body.ssn,
+      },
+    });
+
     if (!user) {
       return res.status(404).send({
         message: "User Not found.",
@@ -70,5 +66,10 @@ exports.signin = (req, res) => {
       message: "Login successfull",
       accessToken: token,
     });
-  });
+  } catch (error) {
+    res.status(500).send({
+      message: error,
+    });
+    return;
+  }
 };

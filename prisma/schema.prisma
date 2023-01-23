@@ -1,0 +1,32 @@
+// Create a database for voting app
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  ssn      String @unique
+  role     String
+  password String
+  vote     Vote?  @relation(fields: [id], references: [id])
+}
+
+// Vote model
+model Vote {
+  id    Int    @id @default(autoincrement())
+  genre Genres @relation(fields: [id], references: [id])
+  User  User[]
+}
+
+model Genres {
+  id    Int    @id @default(autoincrement())
+  genre String
+  Vote  Vote[]
+}

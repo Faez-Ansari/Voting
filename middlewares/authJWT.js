@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
-User = require("../models/user");
+const PrismaClient = require("@prisma/client").PrismaClient;
+
+const prisma = new PrismaClient();
 
 const verifyToken = (req, res, next) => {
   if (
@@ -12,18 +14,20 @@ const verifyToken = (req, res, next) => {
       process.env.API_SECRET,
       function (err, decode) {
         if (err) req.user = undefined;
-        User.findOne({
-          _id: decode.id,
-        }).exec((err, user) => {
-          if (err) {
-            res.status(500).send({
-              message: err,
-            });
-          } else {
+        prisma.user
+          .findUnique({
+            where: {
+              id: decode.id,
+            },
+          })
+          .then((user) => {
             req.user = user;
             next();
-          }
-        });
+          })
+          .catch((err) => {
+            req.user = undefined;
+            next();
+          });
       }
     );
   } else {
@@ -33,3 +37,7 @@ const verifyToken = (req, res, next) => {
 };
 
 module.exports = verifyToken;
+function newFunction() {
+  return require("jsonwebtoken");
+}
+
