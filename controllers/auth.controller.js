@@ -27,6 +27,12 @@ exports.signup = async (req, res) => {
       }
     );
 
+    res.cookie("bearer", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
     res.status(200).send({
       message: "User was registered successfully!",
       data: user,
@@ -78,6 +84,12 @@ exports.signin = async (req, res) => {
         expiresIn: 60 * 60 * 24,
       }
     );
+
+    res.cookie("bearer", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
 
     //responding to client request with user profile success message and  access token .
     res.status(200).send({
