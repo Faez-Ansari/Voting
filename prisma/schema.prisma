@@ -15,14 +15,14 @@ model User {
   ssn      String @unique
   role     String
   password String
-  vote     Vote?  @relation(fields: [id], references: [id])
+  // vote     Vote?  @relation(fields: [id], references: [id])
 }
 
 // Vote model
 model Vote {
   id    Int    @id @default(autoincrement())
   genre Genres @relation(fields: [id], references: [id])
-  User  User[]
+  // User  User[]
 }
 
 model Genres {

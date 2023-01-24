@@ -5,28 +5,48 @@ const PrismaClient = require("@prisma/client").PrismaClient;
 const prisma = new PrismaClient();
 
 exports.signup = async (req, res) => {
-  console.log(req.body);
-  const user = await prisma.user.create({
-    data: {
-      ssn: req.body.ssn,
-      username: req.body.username,
-      password: bcrypt.hashSync(req.body.password, 8),
-      role: req.body.role,
-    },
-  });
+  try {
+    const user = await prisma.user.create({
+      data: {
+        ssn: req.body.ssn,
+        username: req.body.username.toLowerCase(),
+        password: bcrypt.hashSync(req.body.password, 8),
+        role: req.body.role,
+      },
+    });
 
-  res.status(200).send({
-    message: "User was registered successfully!",
-    data: user,
-  });
+    var token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+        username: user.username,
+      },
+      process.env.API_SECRET,
+      {
+        expiresIn: 60 * 60 * 24,
+      }
+    );
+
+    res.status(200).send({
+      message: "User was registered successfully!",
+      data: user,
+      accessToken: token,
+    });
+  } catch (error) {
+    res.status(401).send({
+      message: error.meta.target,
+    });
+    return;
+  }
+
+  return;
 };
 
 exports.signin = async (req, res) => {
-  console.log(req.body);
   try {
     const user = await prisma.user.findUnique({
       where: {
-        ssn: req.body.ssn,
+        username: req.body.username.toLowerCase(),
       },
     });
 
@@ -45,14 +65,17 @@ exports.signin = async (req, res) => {
         message: "Invalid Password!",
       });
     }
+
     //signing token with user id
     var token = jwt.sign(
       {
         id: user.id,
+        role: user.role,
+        username: user.username,
       },
       process.env.API_SECRET,
       {
-        expiresIn: 86400,
+        expiresIn: 60 * 60 * 24,
       }
     );
 
@@ -67,6 +90,7 @@ exports.signin = async (req, res) => {
       accessToken: token,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).send({
       message: error,
     });
