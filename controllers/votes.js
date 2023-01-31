@@ -82,7 +82,6 @@ exports.countVotes = async (req, res) => {
 
     let voteCountList = [];
 
-    // count each vote from vote table
     votes.forEach((vote) => {
       let genreName = vote.genreName;
       let count = 0;
@@ -99,7 +98,6 @@ exports.countVotes = async (req, res) => {
       });
     });
 
-    // remove duplicates
     let count = voteCountList.filter(
       (vote, index, self) =>
         index === self.findIndex((t) => t.genreName === vote.genreName)

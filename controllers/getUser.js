@@ -4,8 +4,6 @@ const prisma = new Prisma.PrismaClient();
 
 exports.getUser = async (req, res) => {
   try {
-    // Get user from database using jwt token
-
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(token, process.env.API_SECRET);
@@ -23,10 +21,7 @@ exports.getUser = async (req, res) => {
           role: user.role,
         },
       });
-    }
-
-    // If no token is provided, return error
-    else {
+    } else {
       res.status(401).send({
         message: "Unauthorized",
       });

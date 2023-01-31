@@ -82,9 +82,7 @@ exports.signin = async (req, res) => {
       return;
     }
 
-    //comparing passwords
     var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-    // checking if password was valid and send response accordingly
     if (!passwordIsValid) {
       return res.status(401).send({
         accessToken: null,
@@ -93,7 +91,6 @@ exports.signin = async (req, res) => {
       return;
     }
 
-    //signing token with user id
     var token = jwt.sign(
       {
         id: user.id,
@@ -112,7 +109,6 @@ exports.signin = async (req, res) => {
       sameSite: "none",
     });
 
-    //responding to client request with user profile success message and  access token .
     res.status(200).send({
       user: {
         id: user._id,
