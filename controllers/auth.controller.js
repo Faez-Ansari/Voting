@@ -4,6 +4,22 @@ const PrismaClient = require("@prisma/client").PrismaClient;
 
 const prisma = new PrismaClient();
 
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+
+    res.status(200).send({
+      message: "Users retrieved successfully!",
+      data: users,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: err,
+    });
+  }
+};
+
 exports.signup = async (req, res) => {
   try {
     const user = await prisma.user.create({
@@ -39,8 +55,9 @@ exports.signup = async (req, res) => {
       accessToken: token,
     });
   } catch (error) {
+    console.log(error);
     res.status(401).send({
-      message: error.meta.target,
+      message: error,
     });
     return;
   }
@@ -56,10 +73,13 @@ exports.signin = async (req, res) => {
       },
     });
 
+    console.log(user);
+
     if (!user) {
       return res.status(404).send({
         message: "User Not found.",
       });
+      return;
     }
 
     //comparing passwords
@@ -70,6 +90,7 @@ exports.signin = async (req, res) => {
         accessToken: null,
         message: "Invalid Password!",
       });
+      return;
     }
 
     //signing token with user id
@@ -81,7 +102,7 @@ exports.signin = async (req, res) => {
       },
       process.env.API_SECRET,
       {
-        expiresIn: 60 * 60 * 24,
+        expiresIn: 60 * 60 * 24, // 1 day
       }
     );
 

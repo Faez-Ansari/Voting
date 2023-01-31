@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "dbpull": "prisma db pull"
+    "dbpull": "prisma db pull",
+    "createAdmin": "wget -O - http://localhost:2000/createAdmin"
   },
   "keywords": [],
   "author": "",

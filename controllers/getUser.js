@@ -1,17 +1,36 @@
+const jwt = require("jsonwebtoken");
+const Prisma = require("@prisma/client");
+const prisma = new Prisma.PrismaClient();
+
 exports.getUser = async (req, res) => {
   try {
-    if (req.headers.cookie) {
-      res.status(200).send({
-        message: "User is logged in",
+    // Get user from database using jwt token
+
+    if (req.headers.authorization) {
+      const token = req.headers.authorization.split(" ")[1];
+      const decodedToken = jwt.verify(token, process.env.API_SECRET);
+
+      const user = await prisma.user.findUnique({
+        where: {
+          username: decodedToken.username,
+        },
       });
-      return;
+
+      res.status(200).send({
+        user: {
+          username: user.username,
+          vote: user?.voteId,
+          role: user.role,
+        },
+      });
     }
 
-    res.status(401).send({
-      message: "User not logged in!",
-    });
-
-    return;
+    // If no token is provided, return error
+    else {
+      res.status(401).send({
+        message: "Unauthorized",
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send({
