@@ -19,4 +19,5 @@ In prisma folder create a sqlite db called dev.db using `sqlite3 dev.db` command
 `npm run createAdmin`
 
 Username: admin
+
 Password: admin
