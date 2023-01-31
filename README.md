@@ -1,4 +1,4 @@
-# Install the dependencies
+# Install dependencies
 
 `npm install`
 
@@ -13,3 +13,5 @@
 # Create a admin
 
 `npm run createAdmin`
+Username: admin
+Password: admin
